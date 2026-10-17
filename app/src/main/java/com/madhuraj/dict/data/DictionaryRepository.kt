@@ -7,7 +7,8 @@ import kotlinx.coroutines.withContext
 
 class DictionaryRepository(context: Context) {
 
-    private val dbHelper = DictionaryDatabaseHelper.getInstance(context)
+    private val appContext = context.applicationContext
+    private val dbHelper = DictionaryDatabaseHelper.getInstance(appContext)
 
     suspend fun initialize() = withContext(Dispatchers.IO) {
         dbHelper.ensureDatabaseExtracted()
@@ -15,7 +16,50 @@ class DictionaryRepository(context: Context) {
     }
 
     suspend fun searchExact(word: String): WordEntry? = withContext(Dispatchers.IO) {
+        val livioEntry = queryLivioProvider(word)
+        if (livioEntry != null) {
+            return@withContext livioEntry
+        }
         dbHelper.searchExact(word)
+    }
+
+    private fun queryLivioProvider(word: String): WordEntry? {
+        val cleanWord = word.trim()
+        if (cleanWord.isEmpty()) return null
+        return try {
+            val uri = android.net.Uri.parse("content://livio.pack.lang.en_US.DictionaryProvider/dictionary")
+            val cursor = appContext.contentResolver.query(uri, null, null, arrayOf(cleanWord), null)
+            cursor?.use { c ->
+                if (c.moveToFirst()) {
+                    val wordCol = c.getColumnIndex("suggest_text_1")
+                    val textCol = c.getColumnIndex("suggest_text_2")
+                    val foundWord = if (wordCol != -1) c.getString(wordCol) else cleanWord
+                    val html = if (textCol != -1) c.getString(textCol) else null
+                    android.util.Log.i("DictionaryRepository", "Livio provider query for '$cleanWord' returned html length=${html?.length}")
+                    html?.chunked(800)?.take(3)?.forEachIndexed { idx, chunk ->
+                        android.util.Log.i("DictionaryRepository", "HTML[$idx]: $chunk")
+                    }
+                    if (!html.isNullOrBlank()) {
+                        val ipa = extractIpa(html) ?: dbHelper.getIpaForWord(cleanWord)
+                        WordEntry(
+                            word = foundWord,
+                            ipa = ipa,
+                            htmlFormatted = html
+                        )
+                    } else null
+                } else null
+            }
+        } catch (e: Exception) {
+            android.util.Log.d("DictionaryRepository", "Livio provider not accessible: ${e.message}")
+            null
+        }
+    }
+
+    private fun extractIpa(html: String?): String? {
+        if (html.isNullOrBlank()) return null
+        val match = Regex("""IPA</a></small>:\s*([^<]+)""").find(html)
+            ?: Regex("""/[^/\n<]+/(?:,\s*/[^/\n<]+/)*""").find(html)
+        return match?.groupValues?.getOrNull(1)?.trim() ?: match?.value?.trim()
     }
 
     suspend fun searchPrefix(prefix: String, limit: Int = 30): List<String> = withContext(Dispatchers.IO) {

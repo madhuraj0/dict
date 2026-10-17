@@ -17,7 +17,7 @@ class DictionaryDatabaseHelper(private val context: Context) {
         private const val TAG = "DictDbHelper"
         private const val DB_NAME = "dictionary.db"
         private const val ASSET_NAME = "dictionary.db"
-        private const val CURRENT_DB_VERSION = 1
+        private const val CURRENT_DB_VERSION = 2
         private const val PREF_KEY_DB_VERSION = "db_version"
         private const val PREFS_NAME = "dict_prefs"
 
@@ -139,7 +139,34 @@ class DictionaryDatabaseHelper(private val context: Context) {
             }
         }
 
-        return if (senses.isNotEmpty()) WordEntry(word = foundWord, senses = senses) else null
+        val ipa = try {
+            db.rawQuery(
+                "SELECT ipa FROM pronunciations WHERE word_lower = ? LIMIT 1",
+                arrayOf(lower)
+            ).use { pc ->
+                if (pc.moveToFirst()) pc.getString(0) else null
+            }
+        } catch (_: Exception) {
+            null
+        }
+
+        return if (senses.isNotEmpty()) WordEntry(word = foundWord, ipa = ipa, senses = senses) else null
+    }
+
+    fun getIpaForWord(word: String): String? {
+        val lower = word.trim().lowercase()
+        if (lower.isEmpty()) return null
+        val db = getDatabase()
+        return try {
+            db.rawQuery(
+                "SELECT ipa FROM pronunciations WHERE word_lower = ? LIMIT 1",
+                arrayOf(lower)
+            ).use { pc ->
+                if (pc.moveToFirst()) pc.getString(0) else null
+            }
+        } catch (_: Exception) {
+            null
+        }
     }
 
     fun searchPrefix(prefix: String, limit: Int = 30): List<String> {

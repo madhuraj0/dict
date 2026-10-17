@@ -87,6 +87,10 @@ class MainActivity : AppCompatActivity() {
             layoutManager = LinearLayoutManager(this@MainActivity)
             adapter = senseAdapter
         }
+
+        com.madhuraj.dict.util.DictionaryFormatter.setupWebView(binding.webWordDetail) { clickedWord ->
+            loadWord(clickedWord)
+        }
     }
 
     private var isProgrammaticTextChange = false
@@ -161,20 +165,24 @@ class MainActivity : AppCompatActivity() {
 
         binding.btnCopy.setOnClickListener {
             val entry = currentWordEntry ?: return@setOnClickListener
-            val textToCopy = buildString {
-                append(entry.word)
-                append("\n\n")
-                entry.senses.forEachIndexed { i, sense ->
-                    append("${i + 1}. ")
-                    if (!sense.pos.isNullOrBlank()) append("(${sense.pos}) ")
-                    append(sense.definition)
-                    if (sense.synonyms.isNotEmpty()) {
-                        append("\nSynonyms: ")
-                        append(sense.synonyms.joinToString(", "))
-                    }
+            val textToCopy = if (!entry.htmlFormatted.isNullOrBlank()) {
+                "${entry.word}\n\n" + android.text.Html.fromHtml(entry.htmlFormatted, android.text.Html.FROM_HTML_MODE_COMPACT).toString().trim()
+            } else {
+                buildString {
+                    append(entry.word)
                     append("\n\n")
-                }
-            }.trim()
+                    entry.senses.forEachIndexed { i, sense ->
+                        append("${i + 1}. ")
+                        if (!sense.pos.isNullOrBlank()) append("(${sense.pos}) ")
+                        append(sense.definition)
+                        if (sense.synonyms.isNotEmpty()) {
+                            append("\nSynonyms: ")
+                            append(sense.synonyms.joinToString(", "))
+                        }
+                        append("\n\n")
+                    }
+                }.trim()
+            }
 
             val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
             clipboard.setPrimaryClip(ClipData.newPlainText("Dictionary Definition", textToCopy))
@@ -183,15 +191,25 @@ class MainActivity : AppCompatActivity() {
 
         binding.btnShare.setOnClickListener {
             val entry = currentWordEntry ?: return@setOnClickListener
-            val shareText = "${entry.word}\n\n" + entry.senses.joinToString("\n") { s ->
-                val posStr = if (!s.pos.isNullOrBlank()) "(${s.pos}) " else ""
-                "$posStr${s.definition}"
+            val shareText = if (!entry.htmlFormatted.isNullOrBlank()) {
+                "${entry.word}\n\n" + android.text.Html.fromHtml(entry.htmlFormatted, android.text.Html.FROM_HTML_MODE_COMPACT).toString().trim()
+            } else {
+                "${entry.word}\n\n" + entry.senses.joinToString("\n") { s ->
+                    val posStr = if (!s.pos.isNullOrBlank()) "(${s.pos}) " else ""
+                    "$posStr${s.definition}"
+                }
             }
             val intent = Intent(Intent.ACTION_SEND).apply {
                 type = "text/plain"
                 putExtra(Intent.EXTRA_TEXT, shareText)
             }
             startActivity(Intent.createChooser(intent, "Share Definition"))
+        }
+
+        binding.fabSearch.setOnClickListener {
+            binding.editSearch.requestFocus()
+            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.showSoftInput(binding.editSearch, InputMethodManager.SHOW_IMPLICIT)
         }
     }
 
@@ -269,13 +287,36 @@ class MainActivity : AppCompatActivity() {
                 repository.addHistory(entry.word)
 
                 binding.textHeadword.text = entry.word
+
+                if (!entry.ipa.isNullOrBlank()) {
+                    binding.textIpa.text = entry.ipa
+                    binding.textIpa.isVisible = true
+                } else {
+                    binding.textIpa.isVisible = false
+                }
+
                 val isSaved = repository.isBookmarked(entry.word)
                 updateBookmarkIcon(isSaved)
 
-                senseAdapter.submitList(entry.senses)
+                val isDark = com.madhuraj.dict.util.DictionaryFormatter.isDarkTheme(this@MainActivity)
+                if (!entry.htmlFormatted.isNullOrBlank()) {
+                    val pageHtml = com.madhuraj.dict.util.DictionaryFormatter.buildDictionaryPage(entry.htmlFormatted, isDark)
+                    binding.webWordDetail.loadDataWithBaseURL("https://en.wiktionary.org/", pageHtml, "text/html", "utf-8", null)
+                    binding.webWordDetail.isVisible = true
+                    binding.recyclerSenses.isVisible = false
+                } else {
+                    val pageHtml = com.madhuraj.dict.util.DictionaryFormatter.formatSensesToHtml(entry.word, entry.ipa, entry.senses, isDark)
+                    binding.webWordDetail.loadDataWithBaseURL("https://en.wiktionary.org/", pageHtml, "text/html", "utf-8", null)
+                    binding.webWordDetail.isVisible = true
+                    binding.recyclerSenses.isVisible = false
+                }
+
                 binding.viewWordDetail.isVisible = true
                 binding.recyclerSuggestions.isVisible = false
                 binding.viewHome.isVisible = false
+                binding.viewWordDetail.post {
+                    binding.viewWordDetail.scrollTo(0, 0)
+                }
 
                 // Update search field text without re-triggering search
                 searchJob?.cancel()

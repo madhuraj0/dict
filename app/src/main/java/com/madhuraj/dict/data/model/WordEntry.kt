@@ -9,5 +9,9 @@ data class WordSense(
 
 data class WordEntry(
     val word: String,
-    val senses: List<WordSense>
+    val ipa: String? = null,
+    val etymology: String? = null,
+    val translations: Map<String, List<String>> = emptyMap(),
+    val senses: List<WordSense> = emptyList(),
+    val htmlFormatted: String? = null
 )

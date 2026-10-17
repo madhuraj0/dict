@@ -49,6 +49,10 @@ class SearchHandlerActivity : AppCompatActivity() {
             adapter = senseAdapter
         }
 
+        com.madhuraj.dict.util.DictionaryFormatter.setupWebView(binding.webWordDetail) { clickedWord ->
+            loadWord(clickedWord)
+        }
+
         binding.dialogBackdrop.setOnClickListener {
             finish()
         }
@@ -122,17 +126,42 @@ class SearchHandlerActivity : AppCompatActivity() {
             if (entry != null) {
                 currentWord = entry.word
                 binding.textWordTitle.text = entry.word
+
+                if (!entry.ipa.isNullOrBlank()) {
+                    binding.textWordIpa.text = entry.ipa
+                    binding.textWordIpa.isVisible = true
+                } else {
+                    binding.textWordIpa.isVisible = false
+                }
+
                 repository.addHistory(entry.word)
+
+                val isDark = com.madhuraj.dict.util.DictionaryFormatter.isDarkTheme(this@SearchHandlerActivity)
+                if (!entry.htmlFormatted.isNullOrBlank()) {
+                    val pageHtml = com.madhuraj.dict.util.DictionaryFormatter.buildDictionaryPage(entry.htmlFormatted, isDark)
+                    binding.webWordDetail.loadDataWithBaseURL("https://en.wiktionary.org/", pageHtml, "text/html", "utf-8", null)
+                    binding.webWordDetail.isVisible = true
+                    binding.recyclerSenses.isVisible = false
+                } else {
+                    val pageHtml = com.madhuraj.dict.util.DictionaryFormatter.formatSensesToHtml(entry.word, entry.ipa, entry.senses, isDark)
+                    binding.webWordDetail.loadDataWithBaseURL("https://en.wiktionary.org/", pageHtml, "text/html", "utf-8", null)
+                    binding.webWordDetail.isVisible = true
+                    binding.recyclerSenses.isVisible = false
+                }
 
                 binding.textNotFound.isVisible = false
                 binding.scrollSenses.isVisible = true
                 binding.btnSpeak.isVisible = true
                 binding.btnOpenFull.isVisible = true
-                senseAdapter.submitList(entry.senses)
+                binding.scrollSenses.post {
+                    binding.scrollSenses.scrollTo(0, 0)
+                }
             } else {
+                binding.textWordIpa.isVisible = false
                 binding.textNotFound.isVisible = true
                 binding.scrollSenses.isVisible = false
                 binding.btnSpeak.isVisible = false
+                binding.btnOpenFull.isVisible = false
                 binding.textNotFound.text = "No offline definition found for “$word”."
             }
         }

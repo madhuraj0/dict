@@ -3,6 +3,11 @@
 
     <!-- 100% Offline: Zero internet permissions requested -->
 
+    <queries>
+        <package android:name="livio.pack.lang.en_US" />
+        <provider android:authorities="livio.pack.lang.en_US.DictionaryProvider" />
+    </queries>
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_search"
@@ -37,6 +42,23 @@
             android:label="@string/title_search_engine"
             android:theme="@style/Theme.Dict.Translucent"
             android:windowSoftInputMode="stateHidden">
+
+            <!-- 0. App Browser Category for Quick Search & Android Browser / Search Provider List -->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.APP_BROWSER" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+
+            <!-- Web Search URL filter for Quick Search and Browsers -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="*" />
+            </intent-filter>
 
             <!-- 1. Web Search Engine Intent (appears when any app launches a web search) -->
             <intent-filter>

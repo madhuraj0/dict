@@ -90,6 +90,23 @@ def main():
 
     print("Building B-tree index on word_lower...")
     conn.execute("CREATE INDEX idx_word_lower ON entries(word_lower);")
+
+    print("Downloading & indexing International Phonetic Alphabet (IPA) pronunciations...")
+    ipa_url = "https://raw.githubusercontent.com/open-dict-data/ipa-dict/master/data/en_US.txt"
+    ipa_cache = "/tmp/en_US.txt"
+    if not os.path.exists(ipa_cache):
+        urllib.request.urlretrieve(ipa_url, ipa_cache)
+
+    conn.execute("CREATE TABLE pronunciations (word_lower TEXT PRIMARY KEY, ipa TEXT);")
+    ipa_rows = []
+    with open(ipa_cache, "r", encoding="utf-8") as f:
+        for line in f:
+            parts = line.strip().split("\t")
+            if len(parts) == 2:
+                ipa_rows.append((parts[0].lower(), parts[1]))
+    conn.executemany("INSERT OR REPLACE INTO pronunciations (word_lower, ipa) VALUES (?, ?);", ipa_rows)
+    print(f"Inserted {len(ipa_rows)} IPA pronunciations.")
+
     conn.commit()
     conn.execute("VACUUM;")
     conn.close()
