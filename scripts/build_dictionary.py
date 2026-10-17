@@ -6,6 +6,7 @@ with pre-computed synsets (thesaurus) and B-tree indexes, compressed for Android
 import gzip
 import json
 import os
+import re
 import sqlite3
 import sys
 import time
@@ -106,6 +107,42 @@ def main():
                 ipa_rows.append((parts[0].lower(), parts[1]))
     conn.executemany("INSERT OR REPLACE INTO pronunciations (word_lower, ipa) VALUES (?, ?);", ipa_rows)
     print(f"Inserted {len(ipa_rows)} IPA pronunciations.")
+
+    print("Downloading & indexing multilingual translations (Hindi, French, Spanish)...")
+    conn.execute("CREATE TABLE translations (word_lower TEXT PRIMARY KEY, hi TEXT, es TEXT, fr TEXT);")
+
+    trans_map = {}
+    hin_cache = "/tmp/eng-hin.tei"
+    if not os.path.exists(hin_cache):
+        urllib.request.urlretrieve("https://raw.githubusercontent.com/freedict/fd-dictionaries/master/eng-hin/eng-hin.tei", hin_cache)
+    with open(hin_cache, "r", encoding="utf-8") as f:
+        for w, q in re.findall(r"<entry>.*?<orth>(.*?)</orth>.*?<quote>(.*?)</quote>.*?</entry>", f.read(), re.DOTALL):
+            cw, cq = w.strip().lower(), q.strip().replace("~", " ")
+            if cw and cq:
+                trans_map.setdefault(cw, {})["hi"] = cq
+
+    fra_cache = "/tmp/eng-fra.tei"
+    if not os.path.exists(fra_cache):
+        urllib.request.urlretrieve("https://raw.githubusercontent.com/freedict/fd-dictionaries/master/eng-fra/eng-fra.tei", fra_cache)
+    with open(fra_cache, "r", encoding="utf-8") as f:
+        for w, q in re.findall(r"<entry>.*?<orth>(.*?)</orth>.*?<quote>(.*?)</quote>.*?</entry>", f.read(), re.DOTALL):
+            cw, cq = w.strip().lower(), q.strip()
+            if cw and cq:
+                trans_map.setdefault(cw, {})["fr"] = cq
+
+    spa_cache = "/tmp/spa-eng.tei"
+    if not os.path.exists(spa_cache):
+        urllib.request.urlretrieve("https://raw.githubusercontent.com/freedict/fd-dictionaries/master/spa-eng/spa-eng.tei", spa_cache)
+    with open(spa_cache, "r", encoding="utf-8") as f:
+        for spa, eng in re.findall(r"<entry>.*?<orth>(.*?)</orth>.*?<quote>(.*?)</quote>.*?</entry>", f.read(), re.DOTALL):
+            for word in eng.split(";"):
+                cw = word.strip().lower()
+                if cw and len(cw.split()) == 1:
+                    trans_map.setdefault(cw, {}).setdefault("es", spa.strip())
+
+    trans_rows = [(w, d.get("hi"), d.get("es"), d.get("fr")) for w, d in trans_map.items()]
+    conn.executemany("INSERT OR REPLACE INTO translations (word_lower, hi, es, fr) VALUES (?, ?, ?, ?);", trans_rows)
+    print(f"Inserted {len(trans_rows)} translation entries.")
 
     conn.commit()
     conn.execute("VACUUM;")

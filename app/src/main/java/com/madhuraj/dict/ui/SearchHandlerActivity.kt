@@ -8,28 +8,32 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.madhuraj.dict.data.AppSettings
 import com.madhuraj.dict.data.DictionaryRepository
 import com.madhuraj.dict.data.model.WordEntry
 import com.madhuraj.dict.databinding.ActivitySearchHandlerBinding
 import com.madhuraj.dict.ui.adapter.SenseAdapter
-import com.madhuraj.dict.util.TtsHelper
+import com.madhuraj.dict.util.AudioPlayerManager
+import com.madhuraj.dict.util.DictionaryFormatter
 import kotlinx.coroutines.launch
 
 class SearchHandlerActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySearchHandlerBinding
     private lateinit var repository: DictionaryRepository
-    private lateinit var ttsHelper: TtsHelper
+    private lateinit var audioPlayerManager: AudioPlayerManager
     private lateinit var senseAdapter: SenseAdapter
     private var currentWord: String = ""
+    private var currentEntry: WordEntry? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        AppSettings.applyTheme(AppSettings.getThemeMode(this))
         super.onCreate(savedInstanceState)
         binding = ActivitySearchHandlerBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         repository = DictionaryRepository(this)
-        ttsHelper = TtsHelper(this)
+        audioPlayerManager = AudioPlayerManager(this, lifecycleScope)
 
         setupUI()
         handleIntent(intent)
@@ -67,7 +71,7 @@ class SearchHandlerActivity : AppCompatActivity() {
 
         binding.btnSpeak.setOnClickListener {
             if (currentWord.isNotEmpty()) {
-                ttsHelper.speak(currentWord)
+                audioPlayerManager.playWord(currentWord, currentEntry?.audioUrl)
             }
         }
 
@@ -125,25 +129,19 @@ class SearchHandlerActivity : AppCompatActivity() {
 
             if (entry != null) {
                 currentWord = entry.word
+                currentEntry = entry
                 binding.textWordTitle.text = entry.word
-
-                if (!entry.ipa.isNullOrBlank()) {
-                    binding.textWordIpa.text = entry.ipa
-                    binding.textWordIpa.isVisible = true
-                } else {
-                    binding.textWordIpa.isVisible = false
-                }
 
                 repository.addHistory(entry.word)
 
-                val isDark = com.madhuraj.dict.util.DictionaryFormatter.isDarkTheme(this@SearchHandlerActivity)
+                val isDark = DictionaryFormatter.isDarkTheme(this@SearchHandlerActivity)
                 if (!entry.htmlFormatted.isNullOrBlank()) {
-                    val pageHtml = com.madhuraj.dict.util.DictionaryFormatter.buildDictionaryPage(entry.htmlFormatted, isDark)
+                    val pageHtml = DictionaryFormatter.buildDictionaryPage(this@SearchHandlerActivity, entry.htmlFormatted, isDark)
                     binding.webWordDetail.loadDataWithBaseURL("https://en.wiktionary.org/", pageHtml, "text/html", "utf-8", null)
                     binding.webWordDetail.isVisible = true
                     binding.recyclerSenses.isVisible = false
                 } else {
-                    val pageHtml = com.madhuraj.dict.util.DictionaryFormatter.formatSensesToHtml(entry.word, entry.ipa, entry.senses, isDark)
+                    val pageHtml = DictionaryFormatter.formatSensesToHtml(this@SearchHandlerActivity, entry.word, entry.ipa, entry.senses, entry.translations, isDark)
                     binding.webWordDetail.loadDataWithBaseURL("https://en.wiktionary.org/", pageHtml, "text/html", "utf-8", null)
                     binding.webWordDetail.isVisible = true
                     binding.recyclerSenses.isVisible = false
@@ -157,7 +155,7 @@ class SearchHandlerActivity : AppCompatActivity() {
                     binding.scrollSenses.scrollTo(0, 0)
                 }
             } else {
-                binding.textWordIpa.isVisible = false
+                currentEntry = null
                 binding.textNotFound.isVisible = true
                 binding.scrollSenses.isVisible = false
                 binding.btnSpeak.isVisible = false
@@ -178,6 +176,6 @@ class SearchHandlerActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        ttsHelper.shutdown()
+        audioPlayerManager.release()
     }
 }

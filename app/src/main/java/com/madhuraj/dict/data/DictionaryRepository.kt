@@ -41,10 +41,24 @@ class DictionaryRepository(context: Context) {
                     }
                     if (!html.isNullOrBlank()) {
                         val ipa = extractIpa(html) ?: dbHelper.getIpaForWord(cleanWord)
+                        val offlineTrans = dbHelper.getTranslationsForWord(cleanWord)
+
+                        var enrichedHtml = html
+                        val hindi = offlineTrans["hi"]
+                        if (!hindi.isNullOrBlank() && !enrichedHtml.contains("Hindi", ignoreCase = true)) {
+                            val hindiSection = "<span class=head>Hindi Translation (हिन्दी)</span><p><b style=\"color:#F59E0B;\">हिन्दी:</b> <span style=\"font-size:18px;font-weight:600;\">$hindi</span></p><hr>"
+                            enrichedHtml = if (enrichedHtml.contains("<span class=head>Translations</span>")) {
+                                enrichedHtml.replaceFirst("<span class=head>Translations</span>", "$hindiSection<span class=head>Translations</span>")
+                            } else {
+                                enrichedHtml + hindiSection
+                            }
+                        }
+
                         WordEntry(
                             word = foundWord,
                             ipa = ipa,
-                            htmlFormatted = html
+                            translations = offlineTrans,
+                            htmlFormatted = enrichedHtml
                         )
                     } else null
                 } else null

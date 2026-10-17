@@ -17,7 +17,7 @@ class DictionaryDatabaseHelper(private val context: Context) {
         private const val TAG = "DictDbHelper"
         private const val DB_NAME = "dictionary.db"
         private const val ASSET_NAME = "dictionary.db"
-        private const val CURRENT_DB_VERSION = 2
+        private const val CURRENT_DB_VERSION = 3
         private const val PREF_KEY_DB_VERSION = "db_version"
         private const val PREFS_NAME = "dict_prefs"
 
@@ -150,7 +150,34 @@ class DictionaryDatabaseHelper(private val context: Context) {
             null
         }
 
-        return if (senses.isNotEmpty()) WordEntry(word = foundWord, ipa = ipa, senses = senses) else null
+        val translations = getTranslationsForWord(lower)
+
+        return if (senses.isNotEmpty()) WordEntry(word = foundWord, ipa = ipa, translations = translations, senses = senses) else null
+    }
+
+    fun getTranslationsForWord(word: String): Map<String, String> {
+        val lower = word.trim().lowercase()
+        if (lower.isEmpty()) return emptyMap()
+        val db = getDatabase()
+        val map = mutableMapOf<String, String>()
+        try {
+            db.rawQuery(
+                "SELECT hi, es, fr FROM translations WHERE word_lower = ? LIMIT 1",
+                arrayOf(lower)
+            ).use { tc ->
+                if (tc.moveToFirst()) {
+                    val hi = if (!tc.isNull(0)) tc.getString(0) else null
+                    val es = if (!tc.isNull(1)) tc.getString(1) else null
+                    val fr = if (!tc.isNull(2)) tc.getString(2) else null
+                    if (!hi.isNullOrBlank()) map["hi"] = hi
+                    if (!es.isNullOrBlank()) map["es"] = es
+                    if (!fr.isNullOrBlank()) map["fr"] = fr
+                }
+            }
+        } catch (_: Exception) {
+            // translations table optional/fallback
+        }
+        return map
     }
 
     fun getIpaForWord(word: String): String? {

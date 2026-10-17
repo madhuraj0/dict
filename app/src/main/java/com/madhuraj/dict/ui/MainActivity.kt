@@ -16,13 +16,16 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.color.DynamicColors
 import com.madhuraj.dict.R
+import com.madhuraj.dict.data.AppSettings
 import com.madhuraj.dict.data.DictionaryRepository
 import com.madhuraj.dict.data.model.WordEntry
 import com.madhuraj.dict.databinding.ActivityMainBinding
 import com.madhuraj.dict.ui.adapter.SenseAdapter
 import com.madhuraj.dict.ui.adapter.SuggestionAdapter
-import com.madhuraj.dict.util.TtsHelper
+import com.madhuraj.dict.util.AudioPlayerManager
+import com.madhuraj.dict.util.DictionaryFormatter
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -31,7 +34,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var repository: DictionaryRepository
-    private lateinit var ttsHelper: TtsHelper
+    private lateinit var audioPlayerManager: AudioPlayerManager
 
     private lateinit var suggestionAdapter: SuggestionAdapter
     private lateinit var homeAdapter: SuggestionAdapter
@@ -42,12 +45,16 @@ class MainActivity : AppCompatActivity() {
     private var isDbInitialized = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        AppSettings.applyTheme(AppSettings.getThemeMode(this))
+        if (AppSettings.getAccent(this) == "dynamic") {
+            DynamicColors.applyToActivityIfAvailable(this)
+        }
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         repository = DictionaryRepository(this)
-        ttsHelper = TtsHelper(this)
+        audioPlayerManager = AudioPlayerManager(this, lifecycleScope)
 
         setupRecyclerViews()
         setupListeners()
@@ -146,8 +153,20 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        binding.btnSettings.setOnClickListener {
+            val dialog = SettingsBottomSheetDialogFragment.newInstance()
+            dialog.onSettingsChangedListener = {
+                currentWordEntry?.let { entry ->
+                    renderWordDetail(entry)
+                }
+            }
+            dialog.show(supportFragmentManager, SettingsBottomSheetDialogFragment.TAG)
+        }
+
         binding.btnSpeak.setOnClickListener {
-            currentWordEntry?.word?.let { ttsHelper.speak(it) }
+            currentWordEntry?.let { entry ->
+                audioPlayerManager.playWord(entry.word, entry.audioUrl)
+            }
         }
 
         binding.btnBookmark.setOnClickListener {
@@ -288,28 +307,10 @@ class MainActivity : AppCompatActivity() {
 
                 binding.textHeadword.text = entry.word
 
-                if (!entry.ipa.isNullOrBlank()) {
-                    binding.textIpa.text = entry.ipa
-                    binding.textIpa.isVisible = true
-                } else {
-                    binding.textIpa.isVisible = false
-                }
-
                 val isSaved = repository.isBookmarked(entry.word)
                 updateBookmarkIcon(isSaved)
 
-                val isDark = com.madhuraj.dict.util.DictionaryFormatter.isDarkTheme(this@MainActivity)
-                if (!entry.htmlFormatted.isNullOrBlank()) {
-                    val pageHtml = com.madhuraj.dict.util.DictionaryFormatter.buildDictionaryPage(entry.htmlFormatted, isDark)
-                    binding.webWordDetail.loadDataWithBaseURL("https://en.wiktionary.org/", pageHtml, "text/html", "utf-8", null)
-                    binding.webWordDetail.isVisible = true
-                    binding.recyclerSenses.isVisible = false
-                } else {
-                    val pageHtml = com.madhuraj.dict.util.DictionaryFormatter.formatSensesToHtml(entry.word, entry.ipa, entry.senses, isDark)
-                    binding.webWordDetail.loadDataWithBaseURL("https://en.wiktionary.org/", pageHtml, "text/html", "utf-8", null)
-                    binding.webWordDetail.isVisible = true
-                    binding.recyclerSenses.isVisible = false
-                }
+                renderWordDetail(entry)
 
                 binding.viewWordDetail.isVisible = true
                 binding.recyclerSuggestions.isVisible = false
@@ -373,8 +374,23 @@ class MainActivity : AppCompatActivity() {
         imm?.hideSoftInputFromWindow(binding.editSearch.windowToken, 0)
     }
 
+    private fun renderWordDetail(entry: WordEntry) {
+        val isDark = DictionaryFormatter.isDarkTheme(this@MainActivity)
+        if (!entry.htmlFormatted.isNullOrBlank()) {
+            val pageHtml = DictionaryFormatter.buildDictionaryPage(this@MainActivity, entry.htmlFormatted, isDark)
+            binding.webWordDetail.loadDataWithBaseURL("https://en.wiktionary.org/", pageHtml, "text/html", "utf-8", null)
+            binding.webWordDetail.isVisible = true
+            binding.recyclerSenses.isVisible = false
+        } else {
+            val pageHtml = DictionaryFormatter.formatSensesToHtml(this@MainActivity, entry.word, entry.ipa, entry.senses, entry.translations, isDark)
+            binding.webWordDetail.loadDataWithBaseURL("https://en.wiktionary.org/", pageHtml, "text/html", "utf-8", null)
+            binding.webWordDetail.isVisible = true
+            binding.recyclerSenses.isVisible = false
+        }
+    }
+
     override fun onDestroy() {
         super.onDestroy()
-        ttsHelper.shutdown()
+        audioPlayerManager.release()
     }
 }
