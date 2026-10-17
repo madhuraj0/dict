@@ -1,8 +1,18 @@
-# Dict
+<p align="center">
+  <img src="docs/icon.png" width="128" height="128" alt="Dict Icon">
+</p>
 
-Fast, offline English collegiate dictionary for Android with system search and text-selection lookup.
+<h1 align="center">Dict</h1>
 
-[**Download APK (v1.0.0)**](https://github.com/madhuraj0/dict/releases/latest)
+<p align="center">
+  Fast, offline English collegiate dictionary for Android with system search and text-selection lookup.
+</p>
+
+<p align="center">
+  <a href="https://github.com/madhuraj0/dict/releases/latest">
+    <img src="docs/get-it-on-github.png" width="190" alt="Get it on GitHub">
+  </a>
+</p>
 
 ---
 
