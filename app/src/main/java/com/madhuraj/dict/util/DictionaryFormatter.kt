@@ -13,8 +13,14 @@ import com.madhuraj.dict.data.model.WordSense
 object DictionaryFormatter {
 
     fun isDarkTheme(context: Context): Boolean {
-        val nightModeFlags = context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
-        return nightModeFlags == Configuration.UI_MODE_NIGHT_YES
+        return when (AppSettings.getThemeMode(context)) {
+            "dark" -> true
+            "light" -> false
+            else -> {
+                val nightModeFlags = context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+                nightModeFlags == Configuration.UI_MODE_NIGHT_YES
+            }
+        }
     }
 
     fun getAccentColorHex(context: Context, isDark: Boolean): String {
@@ -84,25 +90,18 @@ object DictionaryFormatter {
         bodyHtml: String,
         isDark: Boolean
     ): String {
-        val bgHex = if (isDark) "#121212" else "#FFFFFF"
         val textHex = if (isDark) "#E2E8F0" else "#1E293B"
         val headHex = if (isDark) "#F8FAFC" else "#0F172A"
         val linkHex = getAccentColorHex(context, isDark)
-        val dividerHex = if (isDark) "#2D3748" else "#E2E8F0"
+        val dividerHex = if (isDark) "#334155" else "#E2E8F0"
         val subHex = if (isDark) "#94A3B8" else "#64748B"
 
         // Strip silence tags or unnecessary internal Livio markers
-        var cleaned = bodyHtml
+        val cleaned = bodyHtml
             .replace("<silence>", "")
             .replace("</silence>", "")
             .replace("<hr style='clear:both'>", "<hr>")
             .replace("<hr style=\"clear:both\">", "<hr>")
-
-        // Filter languages if disabled
-        val selectedLangs = AppSettings.getSelectedLanguages(context)
-        if (!selectedLangs.contains("hi")) {
-            cleaned = cleaned.replace(Regex("""<span class=head>Hindi Translation.*?<hr>""", setOf(RegexOption.DOT_MATCHES_ALL, RegexOption.IGNORE_CASE)), "")
-        }
 
         return """
             <!DOCTYPE html>
@@ -111,8 +110,8 @@ object DictionaryFormatter {
             <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
             <style>
                 * { box-sizing: border-box; }
-                body {
-                    background-color: $bgHex;
+                html, body {
+                    background-color: transparent;
                     color: $textHex;
                     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
                     font-size: 16px;
@@ -130,6 +129,50 @@ object DictionaryFormatter {
                     margin-top: 18px;
                     margin-bottom: 8px;
                     letter-spacing: -0.2px;
+                }
+                .hindi-card {
+                    background: rgba(245, 158, 11, 0.08);
+                    border-left: 3.5px solid #F59E0B;
+                    padding: 10px 14px;
+                    border-radius: 6px;
+                    margin: 12px 0 16px 0;
+                }
+                .hindi-tag {
+                    font-size: 11.5px;
+                    font-weight: 700;
+                    color: #F59E0B;
+                    text-transform: uppercase;
+                    letter-spacing: 0.8px;
+                    margin-bottom: 3px;
+                }
+                .hindi-word {
+                    font-size: 20px;
+                    font-weight: 700;
+                    color: $headHex;
+                    line-height: 1.35;
+                }
+                .NavFrame {
+                    margin: 10px 0;
+                    border: 1px solid $dividerHex;
+                    border-radius: 8px;
+                    padding: 8px 12px;
+                }
+                .NavHead {
+                    font-weight: 600;
+                    color: $headHex;
+                }
+                .NavContent {
+                    margin-top: 6px;
+                }
+                table {
+                    border-collapse: collapse;
+                    width: 100%;
+                    margin: 10px 0;
+                }
+                th, td {
+                    border: 1px solid $dividerHex;
+                    padding: 6px 8px;
+                    color: $textHex;
                 }
                 hr {
                     border: none;
@@ -207,6 +250,11 @@ object DictionaryFormatter {
             sb.append("<hr>")
         }
 
+        val hindi = translations["hi"]
+        if (!hindi.isNullOrBlank()) {
+            sb.append("<div class=\"hindi-card\"><div class=\"hindi-tag\">Hindi • हिन्दी</div><div class=\"hindi-word\">${htmlEscape(hindi)}</div></div>")
+        }
+
         sb.append("<p><b>${htmlEscape(word)}</b></p>")
 
         val grouped = senses.groupBy { it.pos?.lowercase() ?: "general" }
@@ -237,30 +285,6 @@ object DictionaryFormatter {
                 sb.append("</li>")
             }
             sb.append("</ol>")
-            sb.append("<hr>")
-        }
-
-        // Multilingual Translations Section
-        val selectedLangs = AppSettings.getSelectedLanguages(context)
-        val activeTranslations = mutableListOf<Pair<String, String>>()
-
-        if (selectedLangs.contains("hi") && translations.containsKey("hi")) {
-            activeTranslations.add("हिन्दी (Hindi)" to translations.getValue("hi"))
-        }
-        if (selectedLangs.contains("es") && translations.containsKey("es")) {
-            activeTranslations.add("Español (Spanish)" to translations.getValue("es"))
-        }
-        if (selectedLangs.contains("fr") && translations.containsKey("fr")) {
-            activeTranslations.add("Français (French)" to translations.getValue("fr"))
-        }
-
-        if (activeTranslations.isNotEmpty()) {
-            sb.append("<span class=head>Translations</span>")
-            for ((langLabel, transVal) in activeTranslations) {
-                val isHindi = langLabel.contains("Hindi")
-                val styleExtra = if (isHindi) "style=\"font-size:17px;font-weight:600;\"" else ""
-                sb.append("<p><b>$langLabel:</b> <span $styleExtra>${htmlEscape(transVal)}</span></p>")
-            }
             sb.append("<hr>")
         }
 

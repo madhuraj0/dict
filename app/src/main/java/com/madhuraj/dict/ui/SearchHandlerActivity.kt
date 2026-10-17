@@ -28,6 +28,9 @@ class SearchHandlerActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         AppSettings.applyTheme(AppSettings.getThemeMode(this))
+        if (AppSettings.getAccent(this) == "dynamic") {
+            com.google.android.material.color.DynamicColors.applyToActivityIfAvailable(this)
+        }
         super.onCreate(savedInstanceState)
         binding = ActivitySearchHandlerBinding.inflate(layoutInflater)
         setContentView(binding.root)

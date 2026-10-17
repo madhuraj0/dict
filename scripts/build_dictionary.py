@@ -116,10 +116,120 @@ def main():
     if not os.path.exists(hin_cache):
         urllib.request.urlretrieve("https://raw.githubusercontent.com/freedict/fd-dictionaries/master/eng-hin/eng-hin.tei", hin_cache)
     with open(hin_cache, "r", encoding="utf-8") as f:
-        for w, q in re.findall(r"<entry>.*?<orth>(.*?)</orth>.*?<quote>(.*?)</quote>.*?</entry>", f.read(), re.DOTALL):
-            cw, cq = w.strip().lower(), q.strip().replace("~", " ")
-            if cw and cq:
-                trans_map.setdefault(cw, {})["hi"] = cq
+        hin_xml = f.read()
+
+    pos_priority = {
+        'N': 10,
+        'ADJ': 9,
+        'ADV': 8,
+        'PRON': 7,
+        'V': 6,
+        'VI': 6,
+        'VT': 6,
+        'VTI': 6
+    }
+
+    curated_hindi = {
+        "water": "पानी, जल",
+        "book": "किताब, पुस्तक",
+        "happy": "खुश, प्रसन्न",
+        "sad": "उदास, दुखी",
+        "good": "अच्छा, बढ़िया",
+        "bad": "बुरा, खराब",
+        "love": "प्यार, प्रेम",
+        "friend": "दोस्त, मित्र",
+        "family": "परिवार",
+        "home": "घर",
+        "house": "मकान, घर",
+        "food": "खाना, भोजन",
+        "time": "समय, वक्त",
+        "life": "जिंदगी, जीवन",
+        "world": "दुनिया, संसार",
+        "sun": "सूरज, सूर्य",
+        "moon": "चाँद, चन्द्रमा",
+        "star": "तारा, सितारा",
+        "earth": "धरती, पृथ्वी",
+        "sky": "आसमान, आकाश",
+        "light": "रोशनी, प्रकाश",
+        "night": "रात",
+        "day": "दिन",
+        "school": "स्कूल, विद्यालय",
+        "work": "काम, कार्य",
+        "money": "पैसा, धन",
+        "health": "स्वास्थ्य, सेहत",
+        "beautiful": "सुंदर, खूबसूरत",
+        "truth": "सत्य, सच",
+        "peace": "शांति",
+        "knowledge": "ज्ञान",
+        "music": "संगीत",
+        "art": "कला",
+        "nature": "प्रकृति, कुदरत",
+        "hope": "उम्मीद, आशा",
+        "dream": "सपना, ख़्वाब",
+        "courage": "साहस, हिम्मत",
+        "strength": "ताकत, शक्ति",
+        "wisdom": "बुद्धि, बुद्धिमत्ता",
+        "freedom": "आज़ादी, स्वतंत्रता",
+        "travel": "यात्रा, सफ़र",
+        "journey": "सफ़र, यात्रा",
+        "language": "भाषा, बोली",
+        "story": "कहानी, कथा",
+        "poetry": "कविता, शायरी",
+        "science": "विज्ञान",
+        "history": "इतिहास",
+        "philosophy": "दर्शनशास्त्र",
+        "computer": "कंप्यूटर",
+        "phone": "फ़ोन",
+        "internet": "इंटरनेट"
+    }
+
+    hin_entries = re.findall(r'<entry>(.*?)</entry>', hin_xml, re.DOTALL)
+    word_candidates = {}
+
+    for e in hin_entries:
+        orth_m = re.search(r'<orth>(.*?)</orth>', e)
+        if not orth_m:
+            continue
+        cw = orth_m.group(1).strip().lower()
+        if not cw:
+            continue
+
+        pos_m = re.search(r'<pos>(.*?)</pos>', e)
+        pos = pos_m.group(1).strip().upper() if pos_m else ''
+        prio = pos_priority.get(pos, 3)
+
+        quotes = re.findall(r'<cit\s+type=[\"\']trans[\"\']>\s*<quote>(.*?)</quote>', e, re.DOTALL)
+        if not quotes:
+            quotes = re.findall(r'<quote>(.*?)</quote>', e)
+
+        cleaned_quotes = []
+        for q in quotes:
+            q = re.sub(r'\{.*?\}', '', q)
+            q = q.replace('~', ' ')
+            q = q.strip(' ?\t\r\n.,')
+            if q and any(ord(c) > 127 for c in q):
+                if q not in cleaned_quotes:
+                    cleaned_quotes.append(q)
+
+        if not cleaned_quotes:
+            continue
+
+        existing = word_candidates.get(cw)
+        if existing is None:
+            word_candidates[cw] = (prio, cleaned_quotes)
+        else:
+            ext_prio, ext_quotes = existing
+            if prio > ext_prio:
+                word_candidates[cw] = (prio, cleaned_quotes)
+            elif prio == ext_prio:
+                combined = ext_quotes + [q for q in cleaned_quotes if q not in ext_quotes]
+                word_candidates[cw] = (prio, combined)
+
+    for cw, (prio, q_list) in word_candidates.items():
+        trans_map.setdefault(cw, {})["hi"] = ", ".join(q_list[:2])
+
+    for cw, val in curated_hindi.items():
+        trans_map.setdefault(cw, {})["hi"] = val
 
     fra_cache = "/tmp/eng-fra.tei"
     if not os.path.exists(fra_cache):

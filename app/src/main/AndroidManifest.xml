@@ -74,8 +74,8 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
 
-            <!-- 3. Text Selection Context Menu (highlight word in any app -> "Offline English Dictionary") -->
-            <intent-filter>
+            <!-- 3. Text Selection Context Menu (highlight word in any app -> "Look up") -->
+            <intent-filter android:label="@string/action_lookup">
                 <action android:name="android.intent.action.PROCESS_TEXT" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:mimeType="text/plain" />

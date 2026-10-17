@@ -167,67 +167,6 @@
 
         </com.google.android.material.chip.ChipGroup>
 
-        <!-- 4. Offline Translations Section -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Translations"
-            android:textColor="?android:attr/textColorPrimary"
-            android:textSize="14sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:text="Select languages displayed under word definitions"
-            android:textColor="?android:attr/textColorSecondary"
-            android:textSize="12sp" />
-
-        <com.google.android.material.chip.ChipGroup
-            android:id="@+id/chipGroupLangs"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:layout_marginBottom="24dp">
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipLangHi"
-                style="@style/Widget.Material3.Chip.Filter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="हिन्दी (Hindi)" />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipLangEs"
-                style="@style/Widget.Material3.Chip.Filter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Español (Spanish)" />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipLangFr"
-                style="@style/Widget.Material3.Chip.Filter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Français (French)" />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipLangDe"
-                style="@style/Widget.Material3.Chip.Filter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Deutsch (German)" />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipLangRu"
-                style="@style/Widget.Material3.Chip.Filter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Русский (Russian)" />
-
-        </com.google.android.material.chip.ChipGroup>
-
         <!-- About & Attribution Section -->
         <TextView
             android:layout_width="wrap_content"

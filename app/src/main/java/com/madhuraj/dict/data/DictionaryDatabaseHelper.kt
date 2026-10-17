@@ -17,7 +17,7 @@ class DictionaryDatabaseHelper(private val context: Context) {
         private const val TAG = "DictDbHelper"
         private const val DB_NAME = "dictionary.db"
         private const val ASSET_NAME = "dictionary.db"
-        private const val CURRENT_DB_VERSION = 3
+        private const val CURRENT_DB_VERSION = 4
         private const val PREF_KEY_DB_VERSION = "db_version"
         private const val PREFS_NAME = "dict_prefs"
 

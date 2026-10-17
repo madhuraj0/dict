@@ -83,31 +83,6 @@ class SettingsBottomSheetDialogFragment : BottomSheetDialogFragment() {
             AppSettings.setAudioMode(context, audioMode)
             onSettingsChangedListener?.invoke()
         }
-
-        // 4. Languages Setup
-        val selectedLangs = AppSettings.getSelectedLanguages(context)
-        binding.chipLangHi.isChecked = selectedLangs.contains("hi")
-        binding.chipLangEs.isChecked = selectedLangs.contains("es")
-        binding.chipLangFr.isChecked = selectedLangs.contains("fr")
-        binding.chipLangDe.isChecked = selectedLangs.contains("de")
-        binding.chipLangRu.isChecked = selectedLangs.contains("ru")
-
-        val langListener = {
-            val newSet = mutableSetOf<String>()
-            if (binding.chipLangHi.isChecked) newSet.add("hi")
-            if (binding.chipLangEs.isChecked) newSet.add("es")
-            if (binding.chipLangFr.isChecked) newSet.add("fr")
-            if (binding.chipLangDe.isChecked) newSet.add("de")
-            if (binding.chipLangRu.isChecked) newSet.add("ru")
-            AppSettings.setSelectedLanguages(context, newSet)
-            onSettingsChangedListener?.invoke()
-        }
-
-        binding.chipLangHi.setOnCheckedChangeListener { _, _ -> langListener() }
-        binding.chipLangEs.setOnCheckedChangeListener { _, _ -> langListener() }
-        binding.chipLangFr.setOnCheckedChangeListener { _, _ -> langListener() }
-        binding.chipLangDe.setOnCheckedChangeListener { _, _ -> langListener() }
-        binding.chipLangRu.setOnCheckedChangeListener { _, _ -> langListener() }
     }
 
     override fun onDestroyView() {

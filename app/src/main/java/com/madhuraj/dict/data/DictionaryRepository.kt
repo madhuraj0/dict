@@ -45,12 +45,18 @@ class DictionaryRepository(context: Context) {
 
                         var enrichedHtml = html
                         val hindi = offlineTrans["hi"]
-                        if (!hindi.isNullOrBlank() && !enrichedHtml.contains("Hindi", ignoreCase = true)) {
-                            val hindiSection = "<span class=head>Hindi Translation (हिन्दी)</span><p><b style=\"color:#F59E0B;\">हिन्दी:</b> <span style=\"font-size:18px;font-weight:600;\">$hindi</span></p><hr>"
-                            enrichedHtml = if (enrichedHtml.contains("<span class=head>Translations</span>")) {
-                                enrichedHtml.replaceFirst("<span class=head>Translations</span>", "$hindiSection<span class=head>Translations</span>")
-                            } else {
-                                enrichedHtml + hindiSection
+                        if (!hindi.isNullOrBlank() && !enrichedHtml.contains("class=\"hindi-card\"")) {
+                            val hindiCard = "<div class=\"hindi-card\"><div class=\"hindi-tag\">Hindi • हिन्दी</div><div class=\"hindi-word\">$hindi</div></div>"
+                            enrichedHtml = when {
+                                enrichedHtml.contains("</silence>") -> {
+                                    enrichedHtml.replaceFirst("</silence>", "</silence>$hindiCard")
+                                }
+                                enrichedHtml.contains("<hr>") -> {
+                                    enrichedHtml.replaceFirst("<hr>", "<hr>$hindiCard")
+                                }
+                                else -> {
+                                    hindiCard + enrichedHtml
+                                }
                             }
                         }
 
