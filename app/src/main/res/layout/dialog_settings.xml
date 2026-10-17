@@ -55,6 +55,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
             android:layout_marginBottom="16dp"
+            app:selectionRequired="true"
             app:singleSelection="true">
 
             <com.google.android.material.chip.Chip
@@ -78,6 +79,13 @@
                 android:layout_height="wrap_content"
                 android:text="Dark" />
 
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipThemeAmoled"
+                style="@style/Widget.Material3.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="AMOLED" />
+
         </com.google.android.material.chip.ChipGroup>
 
         <!-- 2. Accent Color Section -->
@@ -95,6 +103,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
             android:layout_marginBottom="16dp"
+            app:selectionRequired="true"
             app:singleSelection="true">
 
             <com.google.android.material.chip.Chip
@@ -132,6 +141,13 @@
                 android:layout_height="wrap_content"
                 android:text="Crimson" />
 
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipAccentMono"
+                style="@style/Widget.Material3.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Monochrome" />
+
         </com.google.android.material.chip.ChipGroup>
 
         <!-- 3. Audio Source Section -->
@@ -149,6 +165,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
             android:layout_marginBottom="16dp"
+            app:selectionRequired="true"
             app:singleSelection="true">
 
             <com.google.android.material.chip.Chip

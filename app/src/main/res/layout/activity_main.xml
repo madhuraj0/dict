@@ -226,17 +226,6 @@
                             android:src="@drawable/ic_bookmark_border"
                             app:tint="?attr/colorPrimary" />
 
-                        <!-- Copy -->
-                        <ImageView
-                            android:id="@+id/btnCopy"
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            android:background="?attr/selectableItemBackgroundBorderless"
-                            android:contentDescription="Copy definition"
-                            android:padding="8dp"
-                            android:src="@drawable/ic_content_copy"
-                            app:tint="?android:attr/textColorSecondary" />
-
                         <!-- Share -->
                         <ImageView
                             android:id="@+id/btnShare"
@@ -246,7 +235,7 @@
                             android:contentDescription="Share word"
                             android:padding="8dp"
                             android:src="@drawable/ic_share"
-                            app:tint="?android:attr/textColorSecondary" />
+                            app:tint="?attr/colorPrimary" />
 
                     </LinearLayout>
 
@@ -292,7 +281,8 @@
         android:layout_margin="24dp"
         android:contentDescription="Search"
         android:src="@drawable/ic_search"
+        app:backgroundTint="?attr/colorPrimaryContainer"
         app:elevation="6dp"
-        app:tint="?attr/colorOnPrimary" />
+        app:tint="?attr/colorOnPrimaryContainer" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -34,17 +34,23 @@ class SettingsBottomSheetDialogFragment : BottomSheetDialogFragment() {
         when (AppSettings.getThemeMode(context)) {
             "light" -> binding.chipThemeLight.isChecked = true
             "dark" -> binding.chipThemeDark.isChecked = true
+            "amoled" -> binding.chipThemeAmoled.isChecked = true
             else -> binding.chipThemeSystem.isChecked = true
         }
 
         binding.chipGroupTheme.setOnCheckedStateChangeListener { _, checkedIds ->
+            if (checkedIds.isEmpty()) return@setOnCheckedStateChangeListener
             val mode = when {
                 checkedIds.contains(R.id.chipThemeLight) -> "light"
                 checkedIds.contains(R.id.chipThemeDark) -> "dark"
+                checkedIds.contains(R.id.chipThemeAmoled) -> "amoled"
                 else -> "system"
             }
-            AppSettings.setThemeMode(context, mode)
-            onSettingsChangedListener?.invoke()
+            if (mode != AppSettings.getThemeMode(context)) {
+                AppSettings.setThemeMode(context, mode)
+                activity?.recreate()
+                onSettingsChangedListener?.invoke()
+            }
         }
 
         // 2. Accent Color Setup
@@ -54,6 +60,7 @@ class SettingsBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
         when (AppSettings.getAccent(context)) {
             "dynamic" -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) binding.chipAccentDynamic.isChecked = true else binding.chipAccentAmber.isChecked = true
+            "monochrome" -> binding.chipAccentMono.isChecked = true
             "blue" -> binding.chipAccentBlue.isChecked = true
             "emerald" -> binding.chipAccentEmerald.isChecked = true
             "crimson" -> binding.chipAccentCrimson.isChecked = true
@@ -61,15 +68,20 @@ class SettingsBottomSheetDialogFragment : BottomSheetDialogFragment() {
         }
 
         binding.chipGroupAccent.setOnCheckedStateChangeListener { _, checkedIds ->
+            if (checkedIds.isEmpty()) return@setOnCheckedStateChangeListener
             val accent = when {
                 checkedIds.contains(R.id.chipAccentDynamic) -> "dynamic"
+                checkedIds.contains(R.id.chipAccentMono) -> "monochrome"
                 checkedIds.contains(R.id.chipAccentBlue) -> "blue"
                 checkedIds.contains(R.id.chipAccentEmerald) -> "emerald"
                 checkedIds.contains(R.id.chipAccentCrimson) -> "crimson"
                 else -> "amber"
             }
-            AppSettings.setAccent(context, accent)
-            onSettingsChangedListener?.invoke()
+            if (accent != AppSettings.getAccent(context)) {
+                AppSettings.setAccent(context, accent)
+                activity?.recreate()
+                onSettingsChangedListener?.invoke()
+            }
         }
 
         // 3. Audio Mode Setup

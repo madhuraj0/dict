@@ -12,9 +12,11 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:layout_marginTop="64dp"
+        app:cardBackgroundColor="?attr/colorSurface"
         app:cardCornerRadius="24dp"
-        app:cardElevation="16dp"
-        app:strokeWidth="0dp">
+        app:cardElevation="0dp"
+        app:strokeColor="?attr/colorOutlineVariant"
+        app:strokeWidth="1dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -31,7 +33,7 @@
                 android:layout_height="4dp"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginBottom="12dp"
-                android:background="@drawable/bg_badge" />
+                android:background="?attr/colorOutlineVariant" />
 
             <!-- Header Row -->
             <LinearLayout

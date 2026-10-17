@@ -1,18 +1,19 @@
 package com.madhuraj.dict.data
 
+import android.app.Activity
 import android.content.Context
 import android.content.SharedPreferences
+import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatDelegate
+import com.google.android.material.color.DynamicColors
+import com.madhuraj.dict.R
 
 object AppSettings {
 
     private const val PREFS_NAME = "dict_settings"
-    private const val KEY_THEME = "theme_mode" // "system", "light", "dark"
+    private const val KEY_THEME = "theme_mode" // "system", "light", "dark", "amoled"
     private const val KEY_AUDIO_MODE = "audio_mode" // "human", "tts"
-    private const val KEY_TRANSLATIONS = "selected_languages"
-    private const val KEY_ACCENT = "accent_color" // "dynamic", "amber", "blue", "emerald", "crimson"
-
-    val DEFAULT_LANGUAGES = setOf("hi", "es", "fr", "de", "ru")
+    private const val KEY_ACCENT = "accent_color" // "dynamic", "monochrome", "amber", "blue", "emerald", "crimson"
 
     private fun prefs(context: Context): SharedPreferences {
         return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -30,7 +31,7 @@ object AppSettings {
     fun applyTheme(mode: String) {
         when (mode) {
             "light" -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-            "dark" -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+            "dark", "amoled" -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
             else -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
         }
     }
@@ -51,15 +52,43 @@ object AppSettings {
         prefs(context).edit().putString(KEY_ACCENT, accent).apply()
     }
 
-    fun getSelectedLanguages(context: Context): Set<String> {
-        return prefs(context).getStringSet(KEY_TRANSLATIONS, DEFAULT_LANGUAGES) ?: DEFAULT_LANGUAGES
+    fun isDark(context: Context): Boolean {
+        return when (getThemeMode(context)) {
+            "dark", "amoled" -> true
+            "light" -> false
+            else -> {
+                val nightModeFlags = context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+                nightModeFlags == Configuration.UI_MODE_NIGHT_YES
+            }
+        }
     }
 
-    fun setSelectedLanguages(context: Context, langs: Set<String>) {
-        prefs(context).edit().putStringSet(KEY_TRANSLATIONS, langs).apply()
-    }
+    fun applyAppTheme(activity: Activity, isTranslucent: Boolean = false) {
+        val themeMode = getThemeMode(activity)
+        val accent = getAccent(activity)
 
-    fun isLanguageEnabled(context: Context, langCode: String): Boolean {
-        return getSelectedLanguages(context).contains(langCode.lowercase())
+        // 1. Base night mode
+        applyTheme(themeMode)
+
+        // 2. Base Theme (AMOLED vs Standard vs Translucent)
+        if (themeMode == "amoled") {
+            if (isTranslucent) {
+                activity.setTheme(R.style.Theme_Dict_Translucent_Amoled)
+            } else {
+                activity.setTheme(R.style.Theme_Dict_Amoled)
+            }
+        } else if (isTranslucent) {
+            activity.setTheme(R.style.Theme_Dict_Translucent)
+        }
+
+        // 3. Accent Theme Overlay
+        when (accent) {
+            "monochrome" -> activity.theme.applyStyle(R.style.ThemeOverlay_Dict_Monochrome, true)
+            "blue" -> activity.theme.applyStyle(R.style.ThemeOverlay_Dict_Blue, true)
+            "emerald" -> activity.theme.applyStyle(R.style.ThemeOverlay_Dict_Emerald, true)
+            "crimson" -> activity.theme.applyStyle(R.style.ThemeOverlay_Dict_Crimson, true)
+            "dynamic" -> DynamicColors.applyToActivityIfAvailable(activity)
+            else -> activity.theme.applyStyle(R.style.ThemeOverlay_Dict_Amber, true)
+        }
     }
 }

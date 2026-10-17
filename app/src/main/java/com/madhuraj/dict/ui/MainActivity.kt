@@ -45,10 +45,7 @@ class MainActivity : AppCompatActivity() {
     private var isDbInitialized = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        AppSettings.applyTheme(AppSettings.getThemeMode(this))
-        if (AppSettings.getAccent(this) == "dynamic") {
-            DynamicColors.applyToActivityIfAvailable(this)
-        }
+        AppSettings.applyAppTheme(this, isTranslucent = false)
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -59,7 +56,8 @@ class MainActivity : AppCompatActivity() {
         setupRecyclerViews()
         setupListeners()
         setupBackPress()
-        initializeDatabase(savedInstanceState == null)
+        val savedWord = savedInstanceState?.getString("current_word")
+        initializeDatabase(savedWord)
     }
 
     private fun setupRecyclerViews() {
@@ -182,31 +180,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        binding.btnCopy.setOnClickListener {
-            val entry = currentWordEntry ?: return@setOnClickListener
-            val textToCopy = if (!entry.htmlFormatted.isNullOrBlank()) {
-                "${entry.word}\n\n" + android.text.Html.fromHtml(entry.htmlFormatted, android.text.Html.FROM_HTML_MODE_COMPACT).toString().trim()
-            } else {
-                buildString {
-                    append(entry.word)
-                    append("\n\n")
-                    entry.senses.forEachIndexed { i, sense ->
-                        append("${i + 1}. ")
-                        if (!sense.pos.isNullOrBlank()) append("(${sense.pos}) ")
-                        append(sense.definition)
-                        if (sense.synonyms.isNotEmpty()) {
-                            append("\nSynonyms: ")
-                            append(sense.synonyms.joinToString(", "))
-                        }
-                        append("\n\n")
-                    }
-                }.trim()
-            }
-
-            val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-            clipboard.setPrimaryClip(ClipData.newPlainText("Dictionary Definition", textToCopy))
-            Toast.makeText(this, "Copied definition to clipboard", Toast.LENGTH_SHORT).show()
-        }
 
         binding.btnShare.setOnClickListener {
             val entry = currentWordEntry ?: return@setOnClickListener
@@ -249,7 +222,14 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-    private fun initializeDatabase(handleIntent: Boolean) {
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        currentWordEntry?.let { entry ->
+            outState.putString("current_word", entry.word)
+        }
+    }
+
+    private fun initializeDatabase(savedWord: String?) {
         binding.progressLoading.isVisible = true
         lifecycleScope.launch {
             try {
@@ -257,7 +237,9 @@ class MainActivity : AppCompatActivity() {
                 isDbInitialized = true
                 binding.progressLoading.isVisible = false
 
-                if (handleIntent && !handleIncomingIntent(intent)) {
+                if (!savedWord.isNullOrEmpty()) {
+                    loadWord(savedWord)
+                } else if (!handleIncomingIntent(intent)) {
                     loadHistory()
                 }
             } catch (e: Exception) {

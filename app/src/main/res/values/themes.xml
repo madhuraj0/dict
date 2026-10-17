@@ -23,4 +23,57 @@
         <item name="android:backgroundDimAmount">0.5</item>
         <item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>
     </style>
+
+    <!-- AMOLED Pitch Black Base Themes -->
+    <style name="Theme.Dict.Amoled" parent="Theme.Dict">
+        <item name="android:colorBackground">@color/amoled_background</item>
+        <item name="colorSurface">@color/amoled_surface</item>
+        <item name="colorOnSurface">@color/amoled_onSurface</item>
+        <item name="colorOutlineVariant">@color/amoled_outlineVariant</item>
+    </style>
+
+    <style name="Theme.Dict.Translucent.Amoled" parent="Theme.Dict.Translucent">
+        <item name="android:colorBackground">@color/amoled_background</item>
+        <item name="colorSurface">@color/amoled_surface</item>
+        <item name="colorOnSurface">@color/amoled_onSurface</item>
+        <item name="colorOutlineVariant">@color/amoled_outlineVariant</item>
+    </style>
+
+    <style name="ThemeOverlay.Dict" parent="" />
+
+    <!-- Accent Theme Overlays (Light) -->
+    <style name="ThemeOverlay.Dict.Amber">
+        <item name="colorPrimary">@color/amber_light_primary</item>
+        <item name="colorOnPrimary">@color/amber_light_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/amber_light_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/amber_light_onPrimaryContainer</item>
+    </style>
+
+    <style name="ThemeOverlay.Dict.Blue">
+        <item name="colorPrimary">@color/blue_light_primary</item>
+        <item name="colorOnPrimary">@color/blue_light_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/blue_light_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/blue_light_onPrimaryContainer</item>
+    </style>
+
+    <style name="ThemeOverlay.Dict.Emerald">
+        <item name="colorPrimary">@color/emerald_light_primary</item>
+        <item name="colorOnPrimary">@color/emerald_light_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/emerald_light_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/emerald_light_onPrimaryContainer</item>
+    </style>
+
+    <style name="ThemeOverlay.Dict.Crimson">
+        <item name="colorPrimary">@color/crimson_light_primary</item>
+        <item name="colorOnPrimary">@color/crimson_light_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/crimson_light_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/crimson_light_onPrimaryContainer</item>
+    </style>
+
+    <style name="ThemeOverlay.Dict.Monochrome">
+        <item name="colorPrimary">@color/mono_light_primary</item>
+        <item name="colorOnPrimary">@color/mono_light_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/mono_light_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/mono_light_onPrimaryContainer</item>
+    </style>
 </resources>

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Base Default (Oxford Blue default) -->
     <color name="md_theme_light_primary">#006495</color>
     <color name="md_theme_light_onPrimary">#FFFFFF</color>
     <color name="md_theme_light_primaryContainer">#CBE6FF</color>
@@ -23,4 +24,65 @@
     <color name="md_theme_dark_surface">#101417</color>
     <color name="md_theme_dark_onSurface">#E1E2E5</color>
     <color name="md_theme_dark_outlineVariant">#42474E</color>
+
+    <!-- AMOLED Pure Black Surfaces -->
+    <color name="amoled_background">#000000</color>
+    <color name="amoled_surface">#000000</color>
+    <color name="amoled_onSurface">#F8FAFC</color>
+    <color name="amoled_outlineVariant">#27272A</color>
+
+    <!-- 1. Amber Gold Palette -->
+    <color name="amber_light_primary">#B45309</color>
+    <color name="amber_light_onPrimary">#FFFFFF</color>
+    <color name="amber_light_primaryContainer">#FEF3C7</color>
+    <color name="amber_light_onPrimaryContainer">#78350F</color>
+
+    <color name="amber_dark_primary">#F59E0B</color>
+    <color name="amber_dark_onPrimary">#451A03</color>
+    <color name="amber_dark_primaryContainer">#78350F</color>
+    <color name="amber_dark_onPrimaryContainer">#FEF3C7</color>
+
+    <!-- 2. Oxford Blue Palette -->
+    <color name="blue_light_primary">#0284C7</color>
+    <color name="blue_light_onPrimary">#FFFFFF</color>
+    <color name="blue_light_primaryContainer">#E0F2FE</color>
+    <color name="blue_light_onPrimaryContainer">#0369A1</color>
+
+    <color name="blue_dark_primary">#38BDF8</color>
+    <color name="blue_dark_onPrimary">#082F49</color>
+    <color name="blue_dark_primaryContainer">#0C4A6E</color>
+    <color name="blue_dark_onPrimaryContainer">#E0F2FE</color>
+
+    <!-- 3. Emerald Palette -->
+    <color name="emerald_light_primary">#059669</color>
+    <color name="emerald_light_onPrimary">#FFFFFF</color>
+    <color name="emerald_light_primaryContainer">#D1FAE5</color>
+    <color name="emerald_light_onPrimaryContainer">#065F46</color>
+
+    <color name="emerald_dark_primary">#34D399</color>
+    <color name="emerald_dark_onPrimary">#064E3B</color>
+    <color name="emerald_dark_primaryContainer">#065F46</color>
+    <color name="emerald_dark_onPrimaryContainer">#D1FAE5</color>
+
+    <!-- 4. Crimson Palette -->
+    <color name="crimson_light_primary">#E11D48</color>
+    <color name="crimson_light_onPrimary">#FFFFFF</color>
+    <color name="crimson_light_primaryContainer">#FFE4E6</color>
+    <color name="crimson_light_onPrimaryContainer">#9F1239</color>
+
+    <color name="crimson_dark_primary">#FB7185</color>
+    <color name="crimson_dark_onPrimary">#4C0519</color>
+    <color name="crimson_dark_primaryContainer">#881337</color>
+    <color name="crimson_dark_onPrimaryContainer">#FFE4E6</color>
+
+    <!-- 5. Monochrome (Paper & Ink) Palette -->
+    <color name="mono_light_primary">#1E293B</color>
+    <color name="mono_light_onPrimary">#FFFFFF</color>
+    <color name="mono_light_primaryContainer">#E2E8F0</color>
+    <color name="mono_light_onPrimaryContainer">#0F172A</color>
+
+    <color name="mono_dark_primary">#F8FAFC</color>
+    <color name="mono_dark_onPrimary">#0F172A</color>
+    <color name="mono_dark_primaryContainer">#334155</color>
+    <color name="mono_dark_onPrimaryContainer">#F8FAFC</color>
 </resources>

@@ -14,7 +14,7 @@ object DictionaryFormatter {
 
     fun isDarkTheme(context: Context): Boolean {
         return when (AppSettings.getThemeMode(context)) {
-            "dark" -> true
+            "dark", "amoled" -> true
             "light" -> false
             else -> {
                 val nightModeFlags = context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
@@ -25,6 +25,7 @@ object DictionaryFormatter {
 
     fun getAccentColorHex(context: Context, isDark: Boolean): String {
         return when (AppSettings.getAccent(context)) {
+            "monochrome" -> if (isDark) "#F8FAFC" else "#1E293B"
             "blue" -> if (isDark) "#38BDF8" else "#0284C7"
             "emerald" -> if (isDark) "#34D399" else "#059669"
             "crimson" -> if (isDark) "#FB7185" else "#E11D48"
@@ -39,6 +40,17 @@ object DictionaryFormatter {
             }
             else -> if (isDark) "#FFD54F" else "#B45309" // Amber Gold default
         }
+    }
+
+    private fun hexToRgba(hex: String, alpha: Double): String {
+        val clean = hex.removePrefix("#")
+        if (clean.length == 6) {
+            val r = clean.substring(0, 2).toIntOrNull(16) ?: 0
+            val g = clean.substring(2, 4).toIntOrNull(16) ?: 0
+            val b = clean.substring(4, 6).toIntOrNull(16) ?: 0
+            return "rgba($r, $g, $b, $alpha)"
+        }
+        return "rgba(245, 158, 11, $alpha)"
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -93,8 +105,10 @@ object DictionaryFormatter {
         val textHex = if (isDark) "#E2E8F0" else "#1E293B"
         val headHex = if (isDark) "#F8FAFC" else "#0F172A"
         val linkHex = getAccentColorHex(context, isDark)
+        val accentBgRgba = hexToRgba(linkHex, if (isDark) 0.12 else 0.08)
         val dividerHex = if (isDark) "#334155" else "#E2E8F0"
         val subHex = if (isDark) "#94A3B8" else "#64748B"
+        val isMono = AppSettings.getAccent(context) == "monochrome"
 
         // Strip silence tags or unnecessary internal Livio markers
         val cleaned = bodyHtml
@@ -131,8 +145,8 @@ object DictionaryFormatter {
                     letter-spacing: -0.2px;
                 }
                 .hindi-card {
-                    background: rgba(245, 158, 11, 0.08);
-                    border-left: 3.5px solid #F59E0B;
+                    background: $accentBgRgba;
+                    border-left: 3.5px solid $linkHex;
                     padding: 10px 14px;
                     border-radius: 6px;
                     margin: 12px 0 16px 0;
@@ -140,7 +154,7 @@ object DictionaryFormatter {
                 .hindi-tag {
                     font-size: 11.5px;
                     font-weight: 700;
-                    color: #F59E0B;
+                    color: $linkHex;
                     text-transform: uppercase;
                     letter-spacing: 0.8px;
                     margin-bottom: 3px;
@@ -181,7 +195,7 @@ object DictionaryFormatter {
                 }
                 a {
                     color: $linkHex;
-                    text-decoration: none;
+                    text-decoration: ${if (isMono) "underline" else "none"};
                     font-weight: 600;
                 }
                 a:active {
