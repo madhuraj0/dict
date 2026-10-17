@@ -1,7 +1,7 @@
-package com.madhuraj.dict.data
+package madhuraj0.dict.data
 
 import android.content.Context
-import com.madhuraj.dict.data.model.WordEntry
+import madhuraj0.dict.data.model.WordEntry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 

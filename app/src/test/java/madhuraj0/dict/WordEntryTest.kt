@@ -1,7 +1,7 @@
-package com.madhuraj.dict
+package madhuraj0.dict
 
-import com.madhuraj.dict.data.model.WordEntry
-import com.madhuraj.dict.data.model.WordSense
+import madhuraj0.dict.data.model.WordEntry
+import madhuraj0.dict.data.model.WordSense
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test

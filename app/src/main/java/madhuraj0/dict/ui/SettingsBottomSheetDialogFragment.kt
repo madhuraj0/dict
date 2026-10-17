@@ -1,4 +1,4 @@
-package com.madhuraj.dict.ui
+package madhuraj0.dict.ui
 
 import android.os.Build
 import android.os.Bundle
@@ -6,9 +6,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import com.madhuraj.dict.R
-import com.madhuraj.dict.data.AppSettings
-import com.madhuraj.dict.databinding.DialogSettingsBinding
+import madhuraj0.dict.R
+import madhuraj0.dict.data.AppSettings
+import madhuraj0.dict.databinding.DialogSettingsBinding
 
 class SettingsBottomSheetDialogFragment : BottomSheetDialogFragment() {
 

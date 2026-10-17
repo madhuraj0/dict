@@ -1,4 +1,4 @@
-package com.madhuraj.dict.data.model
+package madhuraj0.dict.data.model
 
 data class WordSense(
     val pos: String?,

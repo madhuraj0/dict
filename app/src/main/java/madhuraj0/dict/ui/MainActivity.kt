@@ -1,4 +1,4 @@
-package com.madhuraj.dict.ui
+package madhuraj0.dict.ui
 
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -17,15 +17,15 @@ import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.color.DynamicColors
-import com.madhuraj.dict.R
-import com.madhuraj.dict.data.AppSettings
-import com.madhuraj.dict.data.DictionaryRepository
-import com.madhuraj.dict.data.model.WordEntry
-import com.madhuraj.dict.databinding.ActivityMainBinding
-import com.madhuraj.dict.ui.adapter.SenseAdapter
-import com.madhuraj.dict.ui.adapter.SuggestionAdapter
-import com.madhuraj.dict.util.AudioPlayerManager
-import com.madhuraj.dict.util.DictionaryFormatter
+import madhuraj0.dict.R
+import madhuraj0.dict.data.AppSettings
+import madhuraj0.dict.data.DictionaryRepository
+import madhuraj0.dict.data.model.WordEntry
+import madhuraj0.dict.databinding.ActivityMainBinding
+import madhuraj0.dict.ui.adapter.SenseAdapter
+import madhuraj0.dict.ui.adapter.SuggestionAdapter
+import madhuraj0.dict.util.AudioPlayerManager
+import madhuraj0.dict.util.DictionaryFormatter
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -93,7 +93,7 @@ class MainActivity : AppCompatActivity() {
             adapter = senseAdapter
         }
 
-        com.madhuraj.dict.util.DictionaryFormatter.setupWebView(binding.webWordDetail) { clickedWord ->
+        madhuraj0.dict.util.DictionaryFormatter.setupWebView(binding.webWordDetail) { clickedWord ->
             loadWord(clickedWord)
         }
     }

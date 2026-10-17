@@ -1,4 +1,4 @@
-package com.madhuraj.dict.util
+package madhuraj0.dict.util
 
 import android.content.Context
 import android.media.AudioAttributes
@@ -8,7 +8,7 @@ import android.net.NetworkCapabilities
 import android.os.Handler
 import android.os.Looper
 import android.speech.tts.TextToSpeech
-import com.madhuraj.dict.data.AppSettings
+import madhuraj0.dict.data.AppSettings
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

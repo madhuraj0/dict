@@ -1,11 +1,11 @@
-package com.madhuraj.dict.ui.adapter
+package madhuraj0.dict.ui.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.madhuraj.dict.databinding.ItemSuggestionBinding
+import madhuraj0.dict.databinding.ItemSuggestionBinding
 
 class SuggestionAdapter(
     private val onWordClick: (String) -> Unit,

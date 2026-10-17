@@ -1,4 +1,4 @@
-package com.madhuraj.dict.data
+package madhuraj0.dict.data
 
 import android.app.Activity
 import android.content.Context
@@ -6,7 +6,7 @@ import android.content.SharedPreferences
 import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatDelegate
 import com.google.android.material.color.DynamicColors
-import com.madhuraj.dict.R
+import madhuraj0.dict.R
 
 object AppSettings {
 
@@ -81,7 +81,15 @@ object AppSettings {
             activity.setTheme(R.style.Theme_Dict_Translucent)
         }
 
-        // 3. Accent Theme Overlay
+        // 3. Status Bar & Navigation Bar Legibility
+        if (!isTranslucent) {
+            val insetsController = androidx.core.view.WindowCompat.getInsetsController(activity.window, activity.window.decorView)
+            val isDarkMode = isDark(activity)
+            insetsController.isAppearanceLightStatusBars = !isDarkMode
+            insetsController.isAppearanceLightNavigationBars = !isDarkMode
+        }
+
+        // 4. Accent Theme Overlay
         when (accent) {
             "monochrome" -> activity.theme.applyStyle(R.style.ThemeOverlay_Dict_Monochrome, true)
             "blue" -> activity.theme.applyStyle(R.style.ThemeOverlay_Dict_Blue, true)

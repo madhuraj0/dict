@@ -1,4 +1,4 @@
-package com.madhuraj.dict.ui
+package madhuraj0.dict.ui
 
 import android.app.SearchManager
 import android.content.Intent
@@ -8,13 +8,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.madhuraj.dict.data.AppSettings
-import com.madhuraj.dict.data.DictionaryRepository
-import com.madhuraj.dict.data.model.WordEntry
-import com.madhuraj.dict.databinding.ActivitySearchHandlerBinding
-import com.madhuraj.dict.ui.adapter.SenseAdapter
-import com.madhuraj.dict.util.AudioPlayerManager
-import com.madhuraj.dict.util.DictionaryFormatter
+import madhuraj0.dict.data.AppSettings
+import madhuraj0.dict.data.DictionaryRepository
+import madhuraj0.dict.data.model.WordEntry
+import madhuraj0.dict.databinding.ActivitySearchHandlerBinding
+import madhuraj0.dict.ui.adapter.SenseAdapter
+import madhuraj0.dict.util.AudioPlayerManager
+import madhuraj0.dict.util.DictionaryFormatter
 import kotlinx.coroutines.launch
 
 class SearchHandlerActivity : AppCompatActivity() {
@@ -53,7 +53,7 @@ class SearchHandlerActivity : AppCompatActivity() {
             adapter = senseAdapter
         }
 
-        com.madhuraj.dict.util.DictionaryFormatter.setupWebView(binding.webWordDetail) { clickedWord ->
+        madhuraj0.dict.util.DictionaryFormatter.setupWebView(binding.webWordDetail) { clickedWord ->
             loadWord(clickedWord)
         }
 

@@ -11,6 +11,7 @@
         <item name="colorSurface">@color/md_theme_dark_surface</item>
         <item name="colorOnSurface">@color/md_theme_dark_onSurface</item>
         <item name="colorOutlineVariant">@color/md_theme_dark_outlineVariant</item>
+        <item name="android:windowLightStatusBar">false</item>
     </style>
 
     <style name="Theme.Dict.Translucent" parent="Theme.Dict">

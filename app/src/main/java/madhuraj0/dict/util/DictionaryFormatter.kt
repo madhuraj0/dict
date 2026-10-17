@@ -1,4 +1,4 @@
-package com.madhuraj.dict.util
+package madhuraj0.dict.util
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -7,8 +7,8 @@ import android.util.TypedValue
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import com.madhuraj.dict.data.AppSettings
-import com.madhuraj.dict.data.model.WordSense
+import madhuraj0.dict.data.AppSettings
+import madhuraj0.dict.data.model.WordSense
 
 object DictionaryFormatter {
 

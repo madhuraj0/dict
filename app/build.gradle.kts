@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.madhuraj.dict"
+    namespace = "madhuraj0.dict"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.madhuraj.dict"
+        applicationId = "madhuraj0.dict"
         minSdk = 26
         targetSdk = 35
         versionCode = 1
@@ -28,6 +28,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("debug")
         }
         debug {
             isMinifyEnabled = false

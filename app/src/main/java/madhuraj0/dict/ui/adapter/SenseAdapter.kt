@@ -1,4 +1,4 @@
-package com.madhuraj.dict.ui.adapter
+package madhuraj0.dict.ui.adapter
 
 import android.view.LayoutInflater
 import android.view.View
@@ -7,8 +7,8 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.chip.Chip
-import com.madhuraj.dict.data.model.WordSense
-import com.madhuraj.dict.databinding.ItemSenseBinding
+import madhuraj0.dict.data.model.WordSense
+import madhuraj0.dict.databinding.ItemSenseBinding
 
 class SenseAdapter(
     private val onSynonymClick: (String) -> Unit

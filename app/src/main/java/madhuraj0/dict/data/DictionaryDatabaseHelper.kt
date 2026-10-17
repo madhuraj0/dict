@@ -1,11 +1,11 @@
-package com.madhuraj.dict.data
+package madhuraj0.dict.data
 
 import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.util.Log
-import com.madhuraj.dict.data.model.WordEntry
-import com.madhuraj.dict.data.model.WordSense
+import madhuraj0.dict.data.model.WordEntry
+import madhuraj0.dict.data.model.WordSense
 import org.json.JSONArray
 import java.io.File
 import java.io.FileOutputStream
