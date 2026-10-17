@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- 100% Offline: Zero internet permissions requested -->
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_search"
+        android:label="@string/app_name"
+        android:roundIcon="@drawable/ic_search"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Dict">
+
+        <!-- Main Dictionary Browser -->
+        <activity
+            android:name=".ui.MainActivity"
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <!-- Custom URI scheme dict://search?q=... -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="dict" />
+            </intent-filter>
+        </activity>
+
+        <!-- Deeply Integrated Search Engine & Text Selection Handler -->
+        <activity
+            android:name=".ui.SearchHandlerActivity"
+            android:exported="true"
+            android:label="@string/title_search_engine"
+            android:theme="@style/Theme.Dict.Translucent"
+            android:windowSoftInputMode="stateHidden">
+
+            <!-- 1. Web Search Engine Intent (appears when any app launches a web search) -->
+            <intent-filter>
+                <action android:name="android.intent.action.WEB_SEARCH" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+
+            <!-- 2. Global Android Search Intent -->
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+
+            <!-- 3. Text Selection Context Menu (highlight word in any app -> "Offline English Dictionary") -->
+            <intent-filter>
+                <action android:name="android.intent.action.PROCESS_TEXT" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+
+            <!-- 4. Android Digital Assistant / Search Action -->
+            <intent-filter>
+                <action android:name="android.intent.action.ASSIST" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+
+        </activity>
+
+    </application>
+
+</manifest>
