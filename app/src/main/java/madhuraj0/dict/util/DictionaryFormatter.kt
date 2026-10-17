@@ -264,11 +264,6 @@ object DictionaryFormatter {
             sb.append("<hr>")
         }
 
-        val hindi = translations["hi"]
-        if (!hindi.isNullOrBlank()) {
-            sb.append("<div class=\"hindi-card\"><div class=\"hindi-tag\">Hindi • हिन्दी</div><div class=\"hindi-word\">${htmlEscape(hindi)}</div></div>")
-        }
-
         sb.append("<p><b>${htmlEscape(word)}</b></p>")
 
         val grouped = senses.groupBy { it.pos?.lowercase() ?: "general" }
@@ -300,6 +295,11 @@ object DictionaryFormatter {
             }
             sb.append("</ol>")
             sb.append("<hr>")
+        }
+
+        val hindi = translations["hi"]
+        if (!hindi.isNullOrBlank()) {
+            sb.append("<div class=\"hindi-card\"><div class=\"hindi-tag\">Hindi • हिन्दी</div><div class=\"hindi-word\">${htmlEscape(hindi)}</div></div>")
         }
 
         return buildDictionaryPage(context, sb.toString(), isDark)
