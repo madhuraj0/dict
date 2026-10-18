@@ -299,7 +299,9 @@ object DictionaryFormatter {
 
         val hindi = translations["hi"]
         if (!hindi.isNullOrBlank()) {
-            sb.append("<div class=\"hindi-card\"><div class=\"hindi-tag\">Hindi • हिन्दी</div><div class=\"hindi-word\">${htmlEscape(hindi)}</div></div>")
+            val root = translations["root"]
+            val tagText = if (!root.isNullOrBlank()) "Hindi • हिन्दी (from: ${htmlEscape(root)})" else "Hindi • हिन्दी"
+            sb.append("<div class=\"hindi-card\"><div class=\"hindi-tag\">$tagText</div><div class=\"hindi-word\">${htmlEscape(hindi)}</div></div>")
         }
 
         return buildDictionaryPage(context, sb.toString(), isDark)

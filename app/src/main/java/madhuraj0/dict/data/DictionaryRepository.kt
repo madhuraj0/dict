@@ -46,7 +46,9 @@ class DictionaryRepository(context: Context) {
                         var enrichedHtml = html
                         val hindi = offlineTrans["hi"]
                         if (!hindi.isNullOrBlank() && !enrichedHtml.contains("class=\"hindi-card\"")) {
-                            val hindiCard = "<hr><div class=\"hindi-card\"><div class=\"hindi-tag\">Hindi • हिन्दी</div><div class=\"hindi-word\">$hindi</div></div>"
+                            val root = offlineTrans["root"]
+                            val tagText = if (!root.isNullOrBlank()) "Hindi • हिन्दी (from: $root)" else "Hindi • हिन्दी"
+                            val hindiCard = "<hr><div class=\"hindi-card\"><div class=\"hindi-tag\">$tagText</div><div class=\"hindi-word\">$hindi</div></div>"
                             enrichedHtml += hindiCard
                         }
 

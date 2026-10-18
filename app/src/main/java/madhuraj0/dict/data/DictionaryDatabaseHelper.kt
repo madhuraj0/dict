@@ -21,6 +21,86 @@ class DictionaryDatabaseHelper(private val context: Context) {
         private const val PREF_KEY_DB_VERSION = "db_version"
         private const val PREFS_NAME = "dict_prefs"
 
+        private val IRREGULAR_LEMMAS = mapOf(
+            "does" to "do", "goes" to "go", "has" to "have", "had" to "have",
+            "went" to "go", "done" to "do", "gone" to "go", "been" to "be",
+            "were" to "be", "was" to "be",
+            "men" to "man", "women" to "woman", "children" to "child",
+            "feet" to "foot", "teeth" to "tooth", "mice" to "mouse",
+            "better" to "good", "best" to "good", "worse" to "bad", "worst" to "bad"
+        )
+
+        private val BLOCKED_STEMS = setOf(
+            "news", "odds"
+        )
+
+        fun getStemCandidates(word: String): List<String> {
+            val clean = word.trim().lowercase()
+            if (clean.length < 4 || clean in BLOCKED_STEMS) return emptyList()
+
+            val irregular = IRREGULAR_LEMMAS[clean]
+            if (irregular != null) {
+                return listOf(irregular)
+            }
+
+            val candidates = mutableListOf<String>()
+
+            // 1. -ies -> -y (parties -> party, flies -> fly)
+            if (clean.endsWith("ies") && clean.length >= 5) {
+                val fourthFromEnd = clean[clean.length - 4]
+                if (fourthFromEnd !in "aeiou") {
+                    candidates.add(clean.dropLast(3) + "y")
+                }
+            }
+
+            // 2. -ied -> -y or -i (carried -> carry, skied -> ski)
+            if (clean.endsWith("ied") && clean.length >= 5) {
+                candidates.add(clean.dropLast(3) + "i")
+                val fourthFromEnd = clean[clean.length - 4]
+                if (fourthFromEnd !in "aeiou") {
+                    candidates.add(clean.dropLast(3) + "y")
+                }
+            }
+
+            // 3. -ing (running -> run, walking -> walk, writing -> write)
+            if (clean.endsWith("ing") && clean.length >= 5) {
+                val base = clean.dropLast(3)
+                if (base.length >= 3 && base[base.length - 1] == base[base.length - 2] && base.last() !in "aeiouy") {
+                    candidates.add(base.dropLast(1))
+                }
+                candidates.add(base + "e")
+                candidates.add(base)
+            }
+
+            // 4. -ed (stopped -> stop, walked -> walk, danced -> dance)
+            if (clean.endsWith("ed") && clean.length >= 5) {
+                val base = clean.dropLast(2)
+                if (base.length >= 3 && base[base.length - 1] == base[base.length - 2] && base.last() !in "aeiouy") {
+                    candidates.add(base.dropLast(1))
+                }
+                candidates.add(clean.dropLast(1))
+                candidates.add(base)
+            }
+
+            // 5. Plural -es: in English, only after sibilants (s, x, z, ch, sh) or consonant + o
+            if (clean.endsWith("es") && clean.length >= 5) {
+                val base = clean.dropLast(2)
+                if (base.endsWith("ss") || base.endsWith("sh") || base.endsWith("ch") ||
+                    base.endsWith("x") || base.endsWith("z") || base.endsWith("s") ||
+                    (base.length >= 2 && base.endsWith("o") && base[base.length - 2] !in "aeiou")
+                ) {
+                    candidates.add(base)
+                }
+            }
+
+            // 6. Plural / 3rd-person -s (dogs -> dog, books -> book, dances -> dance)
+            if (clean.endsWith("s") && !clean.endsWith("ss") && clean.length >= 4) {
+                candidates.add(clean.dropLast(1))
+            }
+
+            return candidates
+        }
+
         @Volatile
         private var instance: DictionaryDatabaseHelper? = null
 
@@ -159,11 +239,30 @@ class DictionaryDatabaseHelper(private val context: Context) {
         val lower = word.trim().lowercase()
         if (lower.isEmpty()) return emptyMap()
         val db = getDatabase()
+
+        // 1. Direct lookup in translations table
+        val direct = queryTranslationsDirect(db, lower)
+        if (direct.isNotEmpty()) return direct
+
+        // 2. Conservative lemma fallback for verbs, plurals & common irregulars
+        val candidates = getStemCandidates(lower)
+        for (stem in candidates) {
+            val stemMap = queryTranslationsDirect(db, stem)
+            if (stemMap.isNotEmpty()) {
+                val result = stemMap.toMutableMap()
+                result["root"] = stem
+                return result
+            }
+        }
+        return emptyMap()
+    }
+
+    private fun queryTranslationsDirect(db: SQLiteDatabase, wordLower: String): Map<String, String> {
         val map = mutableMapOf<String, String>()
         try {
             db.rawQuery(
                 "SELECT hi, es, fr FROM translations WHERE word_lower = ? LIMIT 1",
-                arrayOf(lower)
+                arrayOf(wordLower)
             ).use { tc ->
                 if (tc.moveToFirst()) {
                     val hi = if (!tc.isNull(0)) tc.getString(0) else null
